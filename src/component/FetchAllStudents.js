@@ -10,7 +10,7 @@ function FetchAllStudents() {
 
         try {
             setError('');
-            const response = await fetch(`http://localhost:8080/home/getStudents`);
+            const response = await fetch(`http://localhost:8080/api/home/getStudents`);
             if (!response.ok) {
                 throw new Error('Students not found');
             }

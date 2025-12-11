@@ -37,7 +37,7 @@ function FetchStudents() {
 
         try {
             setError('');
-            const response = await fetch(`http://localhost:8080/home/getStudentById/${studentId}`);
+            const response = await fetch(`http://localhost:8080/api/home/getStudentById/${studentId}`);
             if (!response.ok) {
                 throw new Error('Student not found');
             }

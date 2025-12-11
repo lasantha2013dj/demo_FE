@@ -28,7 +28,7 @@ function SaveStudents() {
         }
 
         setError("");
-        fetch("http://localhost:8080/home/saveStudent",
+        fetch("http://localhost:8080/api/home/saveStudent",
             {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
