@@ -10,7 +10,20 @@ function FetchAllStudents() {
 
         try {
             setError('');
-            const response = await fetch(`http://localhost:8080/api/home/getStudents`);
+            const token = localStorage.getItem("token");
+            console.log(token);
+
+            const response = await fetch(
+                "http://localhost:8080/api/home/getStudents",
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                }
+            );
+
             if (!response.ok) {
                 throw new Error('Students not found');
             }

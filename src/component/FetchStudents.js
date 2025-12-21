@@ -37,7 +37,20 @@ function FetchStudents() {
 
         try {
             setError('');
-            const response = await fetch(`http://localhost:8080/api/home/getStudentById/${studentId}`);
+            const token = localStorage.getItem("token");
+            console.log(token);
+
+            const response = await fetch(
+                `http://localhost:8080/api/home/getStudentById/${studentId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                }
+            );
+
             if (!response.ok) {
                 throw new Error('Student not found');
             }
@@ -87,9 +100,9 @@ function FetchStudents() {
                         {/*<pre>{JSON.stringify(studentData, null, 2)}</pre>*/}
 
                         {studentData && studentData.studentID && (
-                            <Paper sx={{ mt: 4 }}>
-                                <Table sx={{ backgroundColor: '#cee8fd' }}>
-                                    <TableHead  sx={{backgroundColor: '#eeeeee'}}>
+                            <Paper sx={{mt: 4}}>
+                                <Table sx={{backgroundColor: '#cee8fd'}}>
+                                    <TableHead sx={{backgroundColor: '#eeeeee'}}>
                                         <TableRow>
                                             <TableCell>ID</TableCell>
                                             <TableCell>First Name</TableCell>

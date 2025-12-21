@@ -3,7 +3,20 @@ import {TextField, Typography} from "@mui/material";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
-function LoginForm({student, setStudent, error, setError, isOpen, onClose}) {
+function LoginForm({
+                       student,
+                       setStudent,
+                       error,
+                       setError,
+                       color,
+                       setColor,
+                       openSignUp,
+                       onSignUp,
+                       onSuccessLogin,
+                       onSuccessSignUp,
+                       isOpen,
+                       onClose
+                   }) {
     if (!isOpen) return null;
 
     const handleChange = (e) => {
@@ -17,50 +30,68 @@ function LoginForm({student, setStudent, error, setError, isOpen, onClose}) {
     // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
-        // login();
 
-        if (!student || !student.firstName || !student.lastName) {
-            setError("Please fill in all required fields.");
-            return;
+        if (openSignUp) {
+            if (!student || !student.firstName || !student.lastName || !student.password) {
+                setError("Please fill in all required fields!");
+                return;
+            }
+        } else {
+            if (!student || !student.firstName || !student.password) {
+                setError("Please fill in all required fields!");
+                return;
+            }
         }
         setError("");
 
         try {
-
-            // fetch("http://localhost:8080/api/auth/signIn",
-            //     {
-            //         method: "POST",
-            //         headers: {"Content-Type": "application/json"},
-            //         body: JSON.stringify(student)
-            //     }).then((response) => response.json())
-            //     .then((data) => {
-            //         console.log(data);
-            //         alert('Student saved successfully!');
-            //         // setStudentAfterSave(data);
-            //     })
-            //     .catch((error) => {
-            //         console.error('Error saving student:', error);
-            //         alert('Failed to save student.');
-            //     });
-
-            fetch("http://localhost:8080/api/auth/signIn", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(student),
-            })
-                .then((response) => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
+            if (openSignUp) {
+                fetch("http://localhost:8080/api/auth/signUp", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(student),
                 })
-                .then((data) => {
-                    console.log("Response:", data);
-                    alert("Student saved successfully!");
-                    // setStudentAfterSave(data);
+                    .then(async (response) => {
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(data.message || "SignUp failed");
+                        }
+                        alert("Student Sign Up Successfully!");
+                        return data;
+                    })
+                    .then((data) => {
+                        console.log("Response:", data);
+                        onSuccessSignUp();
+                    })
+                    .catch((error) => {
+                        console.error("Error Sign Up student:", error.message);
+                        alert(error.message);
+                    });
+            } else {
+                fetch("http://localhost:8080/api/auth/signIn", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(student)
                 })
-                .catch((error) => {
-                    console.error("Error saving student:", error);
-                    alert("Failed to save student.");
-                });
+                    .then(async (response) => {
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.message || "SignIn failed");
+                        }
+                        alert("Student SignIn successfully!");
+                        return data;
+                    })
+                    .then((data) => {
+                        // console.log("Response body:", data);
+                        onSuccessLogin(data);
+                        localStorage.setItem("token", data.data);
+                    })
+                    .catch((error) => {
+                        console.error("Error SignIn student:", error.message);
+                        alert(error.message);
+                    });
+            }
 
         } catch (err) {
             setError(err.message);
@@ -78,8 +109,14 @@ function LoginForm({student, setStudent, error, setError, isOpen, onClose}) {
                     </p>
                 </div>
 
-
-                <h2>Login Form</h2>
+                {
+                    openSignUp &&
+                    <h2>Sign Up Form</h2>
+                }
+                {
+                    !openSignUp &&
+                    <h2>Login Form</h2>
+                }
 
                 <Box sx={{p: 4, maxWidth: 500}}>
 
@@ -92,14 +129,19 @@ function LoginForm({student, setStudent, error, setError, isOpen, onClose}) {
                             fullWidth
                             margin="normal"
                         />
-                        <TextField
-                            label="Last Name"
-                            name="lastName"
-                            value={student.lastName}
-                            onChange={handleChange}
-                            fullWidth
-                            margin="normal"
-                        />
+
+                        {
+                            openSignUp &&
+                            <TextField
+                                label="Last Name"
+                                name="lastName"
+                                value={student.lastName}
+                                onChange={handleChange}
+                                fullWidth
+                                margin="normal"
+                            />
+                        }
+
                         <TextField
                             label="Password"
                             name="password"
@@ -111,6 +153,19 @@ function LoginForm({student, setStudent, error, setError, isOpen, onClose}) {
                         <Button type="submit" variant="contained" sx={{mt: 2}}>
                             Submit
                         </Button>
+
+                        {
+                            !openSignUp &&
+                            <p
+                                tabIndex={0}
+                                onFocus={() => setColor("blue")}
+                                onBlur={() => setColor("blue")}
+                                style={{color}}
+                                onClick={onSignUp}
+                            >
+                                Sign Up Here!
+                            </p>
+                        }
 
                         {error && (
                             <Typography color="error" sx={{mt: 2}}>
